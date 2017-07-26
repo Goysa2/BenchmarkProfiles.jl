@@ -13,8 +13,8 @@ function performance_ratios(T :: Array{Float64,2}; logscale :: Bool=true)
 
   (np, ns) = size(T);       # Number of problems and number of solvers.
 
-  T[isinf.(T)] = NaN;
-  T[T .< 0] = NaN;
+  T[isnan.(T)] = Inf;
+  T[T .< 0] = Inf;
   minperf = Base.minimum(T, 2);  # Minimal (i.e., best) performance per solver
 
   # Compute ratios and divide by smallest element in each row.
@@ -22,6 +22,7 @@ function performance_ratios(T :: Array{Float64,2}; logscale :: Bool=true)
   for p = 1 : np
     r[p, :] = T[p, :] / minperf[p];
   end
+  r[isinf.(r)] = NaN
 
   logscale && (r = log2.(r));
   max_ratio = NaNMath.maximum(r)
